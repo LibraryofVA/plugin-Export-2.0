@@ -6,16 +6,15 @@ class ExportPlugin extends Omeka_Plugin_AbstractPlugin
 	);
  	
 	/**
-	* Hook into admin_append_to_collections_show_primary
+	* Hook into adminAdminCollectionsShow
 	*
 	* @param $collection
 	*/
 	public function hookAdminCollectionsShow($args) {
-      $collection = $args['collection'];
-	  echo "<p><a href=\"../../export/index/list?c=" . $collection->id . "\" target=\"_blank\">View the original file names from this collection (collection->item->file)</a></p>";
+    	$collection = $args['collection'];
+		echo "<br /><p><a href=\"../../export/index/item?c=" . $collection->id . "\">Download ZIP file containing a transcription pdf for each item (collection->item)</a></p>";
+		echo "<p><a href=\"../../export/index/list?c=" . $collection->id . "\" target=\"_blank\">View the original file names from this collection (collection->item->file)</a></p>";
     }
-	
-	
 	
 }
 $exportPlugin = new ExportPlugin();

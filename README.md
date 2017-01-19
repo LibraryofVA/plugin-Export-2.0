@@ -9,6 +9,11 @@ This plugin is an updated version of https://github.com/LibraryofVA/plugin-Expor
 and as a work in progress the Summary and Usage section below will receive updates
 as we proceed.
 
+A link is added to the Collections/Show page that when used will list the original 
+filenames for items within the collection that have a current transcription. This 
+plugin was designed specifically for use by the Library of Virginia to extract transcription
+data to then be imported into a digital asset management system adding full text search capability.
+
 The free PHP library FPDF available from http://www.fpdf.org/ makes the PDF creation
 that takes place within this plugin possible.
 
@@ -30,6 +35,9 @@ Install it like any other Omeka plugin.
 
 Usage
 -----
+
+A link is added to the Collections/Show page that when used will list the original 
+filenames for items within the collection that have a current transcription.
 
 Updates coming soon...
 

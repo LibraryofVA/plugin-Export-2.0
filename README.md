@@ -5,21 +5,17 @@ Export (plugin for Omeka)
 Summary
 -------
 
-This plugin is an updated version of https://github.com/LibraryofVA/plugin-Export
-and as a work in progress the Summary and Usage section below will receive updates
-as we proceed.
+This plugin is an updated version of https://github.com/LibraryofVA/plugin-Export.
 
-Two links are added to the Collections/Show page. One link allows for downloading 
-a ZIP file containing a single PDF file for each item within the collection and 
-a page for each file that has a transcription present. The second link will list 
-the original filenames for items within the collection that have a current transcription.
-This plugin was designed specifically for use by the Library of Virginia to extract transcription
+Export adds a series of links to the bottom of the Collections/Show page. The links can 
+be used to export a single ZIP file containing PDF files organized at the item or file level.
+Export was designed specifically for use by the Library of Virginia to extract transcription
 data to then be imported into a digital asset management system adding full text search capability.
 
 The free PHP library FPDF available from http://www.fpdf.org/ makes the PDF creation
 that takes place within this plugin possible.
 
-This plugin is meant to be used in conjuction with Scripto and MediaWiki as orginally
+This plugin is meant to be used in conjunction with Scripto and MediaWiki as originally
 configured as a crowd-sourcing transcription tool by the University of Iowa Libraries
 (http://diyhistory.lib.uiowa.edu/transcribe/) and later reproduced by the Library of Virginia
 (http://www.virginiamemory.com/transcribe/). Visit https://github.com/LibraryofVA/MakingHistory-transcribe-2.0
@@ -38,12 +34,10 @@ Install it like any other Omeka plugin.
 Usage
 -----
 
-Two links are added to the Collections/Show page. One link allows for downloading 
-a ZIP file containing a single PDF file for each item within the collection and 
-a page for each file that has a transcription present. The second link will list 
-the original filenames for items within the collection that have a current transcription.
-
-Updates coming soon...
+An Export section is added to the bottom of the Collections/Show page.
+- Download ZIP file containing a transcription pdf for each item (collection->item)
+- Download ZIP file containing a transcription pdf for each file (collection->item->file)
+- View the original file names from this collection (collection->item->file)
 
 
 Warning

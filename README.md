@@ -8,7 +8,7 @@ Summary
 This plugin is an updated version of https://github.com/LibraryofVA/plugin-Export.
 
 Export adds a series of links to the bottom of the Collections/Show page. The links can 
-be used to export a single ZIP file containing PDF files organized at the item or file level.
+be used to export a single ZIP file containing PDF or Text files organized at the item or file level.
 Export was designed specifically for use by the Library of Virginia to extract transcription
 data to then be imported into a digital asset management system adding full text search capability.
 
@@ -26,7 +26,7 @@ Installation
 
 Uncompress files and rename to "Export".
 
-Ensure your httpd service account has write access to the /plugins/Export/PDF/ directory.
+Ensure your httpd service account has write access to the /plugins/Export/PDF/ and /plugins/Export/TXT/ directories.
 
 Install it like any other Omeka plugin.
 
@@ -37,6 +37,7 @@ Usage
 An Export section is added to the bottom of the Collections/Show page.
 - Download ZIP file containing a transcription pdf for each item (collection->item)
 - Download ZIP file containing a transcription pdf for each file (collection->item->file)
+- Download ZIP file containing a transcription .txt file for each file (collection->item->file)
 - View the original file names from this collection (collection->item->file)
 
 

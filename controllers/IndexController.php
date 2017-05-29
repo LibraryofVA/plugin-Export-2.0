@@ -9,13 +9,13 @@ class Export_IndexController extends Omeka_Controller_AbstractActionController
 	public function indexAction()
     {
 	}
-	public function itemAction()
-    {
-	}
 	public function listAction()
     {
 	}
 	public function textAction()
+    {
+	}
+	public function flexibleAction()
     {
 	}
 }

@@ -6,6 +6,10 @@ $pdfDirectory = dirname(getcwd()) . "/plugins/Export/PDF/";
 foreach (glob($pdfDirectory . "*.pdf") as $file) {
 	unlink($file); // unlink deletes a file
 }
+// Loop over all of the .txt files in the PDF folder
+foreach (glob($pdfDirectory . "*.txt") as $file) {
+	unlink($file); // unlink deletes a file
+}
 
 //include FPDF 
 require_once(dirname(getcwd()) . "/plugins/Export/fpdf.php");
@@ -13,12 +17,24 @@ require_once(dirname(getcwd()) . "/plugins/Export/fpdf.php");
 //get collection from query string
 $collectionID = $_GET['c'];
 
+//get number of characters to strip
+$charCount = $_GET['characters'];
+if ($charCount == "") {
+	$charCount = 0;
+}
+$charCount = $charCount + 5;
+
+//get format
+$format = strtoupper($_GET['format']);
+if ($format == "") {
+	$format = "PDF";
+}
+
 //create empty array to hold files
 $arrayOfFiles = array();
 
-//create empty array to hold pdf files that we will ZIP
-$arrayOfPDFs = array();
-
+//create empty array to hold created files that we will ZIP
+$arrayOfCreatedFiles = array();
 
 $collection_items = get_records('Item',
             array(
@@ -42,9 +58,12 @@ foreach (loop('items') as $item) :
 				} else {
 					$jpgFileName = metadata($file, 'original filename');
 				}
-
-				//set pdf name, substr -4 is taking off .jpg
-				$pdfFileName = substr($jpgFileName, 0, -4) . "_transcription.pdf";
+				if ($format == "PDF") {
+					$fileName = substr($jpgFileName, 0, -$charCount) . "_transcription.pdf";
+				} else {
+					//set txt name
+					$fileName = substr($jpgFileName, 0, -$charCount) . "_transcription.txt";
+				}
 
 				//clean <p>, </p>, <pre>, </pre>, and <br /> out of the transcription text
 				$transcriptionText = preg_replace("/<[\/]*p>/", "", metadata($file, array('Scripto', 'Transcription')));
@@ -54,8 +73,6 @@ foreach (loop('items') as $item) :
 				$transcriptionText = preg_replace("/&amp;/", "&", $transcriptionText);
 				//replace a coded non-breaking space with a space
 				$transcriptionText = preg_replace("/&#160;/", " ", $transcriptionText);
-				//remove Transclusion expansion time report
-				$transcriptionText = preg_replace("/<!--.*?-->/ms", "", $transcriptionText);
 				//convert transcription text from UTF-8 to windows-1252 which worked better in PDF files created
 				$transcriptionText = iconv('UTF-8', 'windows-1252', $transcriptionText);
 
@@ -68,33 +85,47 @@ foreach (loop('items') as $item) :
 				$arrayOfFiles[] = array('id' => metadata($file, 'id'), 'of' => $jpgFileName, 'title' => $transcriptionTitle, 'date' => metadata($file, array('Dublin Core', 'Date')), 'trans' => $transcriptionText);
 			endif;
 		endforeach;
-
+		
 		//sort the array of files
 		$arr2 = array_msort($arrayOfFiles, array('of'=>SORT_ASC));
-		//build pdf page for each file
-		foreach ($arr2 as $key => $row) {
-			$pdf->AddPage();
-			$pdf->SetFont('Times','',12);
-			$pdf->Cell(40,15,$pdf->Image(dirname(getcwd()) . '/plugins/Export/logo.png', 10, 10, 35),0,0);
-			$pdf->Cell(0,5,$row['title'],0,1);
-			$pdf->SetX(50); //indent the next cell
-			$pdf->Cell(0,5,$row['date'],0,1);
-			$pdf->SetX(50); //indent the next cell
-			$pdf->Cell(0,5,$row['of'],0,1);
-			$pdf->Cell(0,5,"",0,1);
-			$pdf->MultiCell(0,5,$row['trans']);
+		
+
+		if ($format == "PDF") {
+			//build pdf page for each file
+			foreach ($arr2 as $key => $row) {
+				$pdf->AddPage();
+				$pdf->SetFont('Times','',12);
+				$pdf->Cell(40,15,$pdf->Image(dirname(getcwd()) . '/plugins/Export/logo.png', 10, 10, 35),0,0);
+				$pdf->Cell(0,5,$row['title'],0,1);
+				$pdf->SetX(50); //indent the next cell
+				$pdf->Cell(0,5,$row['date'],0,1);
+				$pdf->SetX(50); //indent the next cell
+				$pdf->Cell(0,5,$row['of'],0,1);
+				$pdf->Cell(0,5,"",0,1);
+				$pdf->MultiCell(0,5,$row['trans']);
+			}
+			$content = $pdf->Output($pdfDirectory . $fileName,'F');
+		} else {
+			foreach ($arr2 as $key => $row) {
+				$myfile = fopen($pdfDirectory . $fileName, "a") or die("Unable to open file!");
+				fwrite($myfile, $row['title']."\r\n");
+				fwrite($myfile, $row['date']."\r\n");
+				fwrite($myfile, $row['trans']);
+				fclose($myfile);
+			}
 		}
+
 		//clear arrays
 		$arr2 = array();
 		$arrayOfFiles = array();
-
-		$content = $pdf->Output($pdfDirectory . $pdfFileName,'F');
-		//add the pdf name to an array used later to zip the files
-		$arrayOfPDFs[] = $pdfFileName;
+		
+		//add the file name to an array used later to zip the files
+		$arrayOfCreatedFiles[] = $fileName;
 	endif;
 endforeach;
 
-$result = create_zip($arrayOfPDFs,$pdfDirectory . "collection.zip",$pdfDirectory);
+$result = create_zip($arrayOfCreatedFiles,$pdfDirectory . "collection.zip",$pdfDirectory);
+
 if($result) {
 	header("Content-type: application/zip"); 
 	header("Content-Disposition: attachment; filename=collection.zip"); 
@@ -103,7 +134,7 @@ if($result) {
     readfile($pdfDirectory . "collection.zip");
 }
 
-// creates a compressed zip file
+/* creates a compressed zip file */
 function create_zip($files = array(),$destination = '',$localPdfDirectory = '',$overwrite = true) {
 	//if the zip file already exists and overwrite is false, return false
 	if(file_exists($destination) && !$overwrite) { return false; }
@@ -130,7 +161,7 @@ function create_zip($files = array(),$destination = '',$localPdfDirectory = '',$
 		foreach($valid_files as $file) {
 			$zip->addFile($localPdfDirectory . $file,$file);
 		}
-		//debug ** uncommenting the below echo will break the forced download of ZIP file as the echo result will be added to the zip file downloaded
+		//debug ** turning this on will break the forced download of ZIP file as the echo result will be added to the zip file downloaded
 		//echo 'The zip archive contains ',$zip->numFiles,' files with a status of ',$zip->status;
 		//close the zip
 		$zip->close();

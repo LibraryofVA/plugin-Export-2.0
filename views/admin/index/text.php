@@ -50,13 +50,13 @@ foreach (loop('items') as $item) :
 				$transcriptionText = iconv('UTF-8', 'windows-1252', $transcriptionText);
 
 				//replace coded single quotes found in the Title with a single quote
-				$transcriptionTitle = preg_replace("/&#039;/", "'", metadata($file, array('Dublin Core', 'Title')));
+				$transcriptionTitle = preg_replace("/&#039;/", "'", metadata($item, array('Dublin Core', 'Title')));
 				//convert transcription title from UTF-8 to windows-1252
 				$transcriptionTitle = iconv('UTF-8', 'windows-1252', $transcriptionTitle);
 				//create a txt containing the transcription
 				$myfile = fopen($txtDirectory . $txtFileName, "w") or die("Unable to open file!");
 				fwrite($myfile, $transcriptionTitle."\r\n");
-				fwrite($myfile, metadata($file, array('Dublin Core', 'Date'))."\r\n");
+				fwrite($myfile, metadata($item, array('Dublin Core', 'Date'))."\r\n");
 				fwrite($myfile, $transcriptionText);
 				fclose($myfile);
 				//add the txt name to an array used later to zip the files

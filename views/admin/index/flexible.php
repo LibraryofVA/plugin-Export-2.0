@@ -77,12 +77,12 @@ foreach (loop('items') as $item) :
 				$transcriptionText = iconv('UTF-8', 'windows-1252', $transcriptionText);
 
 				//replace coded single quotes found in the Title with a single quote
-				$transcriptionTitle = preg_replace("/&#039;/", "'", metadata($file, array('Dublin Core', 'Title')));
+				$transcriptionTitle = preg_replace("/&#039;/", "'", metadata($item, array('Dublin Core', 'Title')));
 				//convert transcription title from UTF-8 to windows-1252
 				$transcriptionTitle = iconv('UTF-8', 'windows-1252', $transcriptionTitle);
 
 				//build array of files
-				$arrayOfFiles[] = array('id' => metadata($file, 'id'), 'of' => $jpgFileName, 'title' => $transcriptionTitle, 'date' => metadata($file, array('Dublin Core', 'Date')), 'trans' => $transcriptionText);
+				$arrayOfFiles[] = array('id' => metadata($file, 'id'), 'of' => $jpgFileName, 'title' => $transcriptionTitle, 'date' => metadata($item, array('Dublin Core', 'Date')), 'trans' => $transcriptionText);
 			endif;
 		endforeach;
 		

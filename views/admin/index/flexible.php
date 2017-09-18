@@ -73,6 +73,8 @@ foreach (loop('items') as $item) :
 				$transcriptionText = preg_replace("/&amp;/", "&", $transcriptionText);
 				//replace a coded non-breaking space with a space
 				$transcriptionText = preg_replace("/&#160;/", " ", $transcriptionText);
+				//remove Transclusion expansion time report
+				$transcriptionText = preg_replace("/<!--.*?-->/ms", "", $transcriptionText);
 				//convert transcription text from UTF-8 to windows-1252 which worked better in PDF files created
 				$transcriptionText = iconv('UTF-8', 'windows-1252', $transcriptionText);
 

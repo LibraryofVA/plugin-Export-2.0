@@ -18,6 +18,7 @@ set_loop_records('items', $collection_items);
 foreach (loop('items') as $item) :
 	set_current_record('item', $item);
 	if (metadata($item, 'has files')):
+		echo metadata('item', array('Dublin Core', 'Title')). "</br>";
 		set_loop_records('files', get_current_record('item')->Files);
 		foreach(loop('files') as $file) :
 			if (metadata($file, array('Scripto', 'Transcription'))) {

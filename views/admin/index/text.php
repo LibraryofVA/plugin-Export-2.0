@@ -2,6 +2,9 @@
 //PDF directory location, this directory needs to be owned by your httpd service account
 $txtDirectory = dirname(getcwd()) . "/plugins/Export/TXT/";
 
+//Create log file
+write_to_log($txtDirectory,"w",date("Y-m-d h:i:sa")."\r\n");
+
 // Loop over all of the .txt files in the TXT folder
 foreach (glob($txtDirectory . "*.txt") as $file) {
 	unlink($file); // unlink deletes a file
@@ -25,6 +28,9 @@ set_loop_records('items', $collection_items);
 foreach (loop('items') as $item) :
 	set_current_record('item', $item);
 	if (metadata($item, 'has files')):
+		//logging individual item titles
+		write_to_log($txtDirectory,"a",metadata($item, array('Dublin Core', 'Title')));
+
 		set_loop_records('files', get_current_record('item')->Files);
 		foreach(loop('files') as $file) :
 			if (metadata($file, array('Scripto', 'Transcription'))):
@@ -36,6 +42,11 @@ foreach (loop('items') as $item) :
 				}
 				//set txt name
 				$txtFileName = preg_replace("/.jpg$/", "_transcription.txt", $jpgFileName);
+
+				//logging individual txt file names
+				write_to_log($txtDirectory,"a","\t".$txtFileName);
+		
+
 				//clean <p>, </p>, <pre>, </pre>, and <br /> out of the transcription text
 				$transcriptionText = preg_replace("/<[\/]*p>/", "", metadata($file, array('Scripto', 'Transcription')));
 				$transcriptionText = preg_replace("/<[\/]*pre>/", "", $transcriptionText);
@@ -66,6 +77,9 @@ foreach (loop('items') as $item) :
 	endif;
 endforeach;
 
+//logging
+write_to_log($txtDirectory,"a","End of text file creation reached");
+
 $result = create_zip($arrayOfTXTs,$txtDirectory . "collection.zip",$txtDirectory);
 if($result) {
 	header("Content-type: application/zip"); 
@@ -79,7 +93,10 @@ if($result) {
 /* creates a compressed zip file */
 function create_zip($files = array(),$destination = '',$localTxtDirectory = '',$overwrite = true) {
 	//if the zip file already exists and overwrite is false, return false
-	if(file_exists($destination) && !$overwrite) { return false; }
+	if(file_exists($destination) && !$overwrite) { 
+		write_to_log($localTxtDirectory,"a","Error: zip file destiniation exists and is not overwrite-able");
+		return false; 
+	}
 	//vars
 	$valid_files = array();
 	//if files were passed in...
@@ -103,8 +120,8 @@ function create_zip($files = array(),$destination = '',$localTxtDirectory = '',$
 		foreach($valid_files as $file) {
 			$zip->addFile($localTxtDirectory . $file,$file);
 		}
-		//debug ** turning this on will break the forced download of ZIP file as the echo result will be added to the zip file downloaded
-		//echo 'The zip archive contains ',$zip->numFiles,' files with a status of ',$zip->status;
+		//log our current status
+		write_to_log($localTxtDirectory,"a","The zip archive contains " . $zip->numFiles . " files with a status of " . $zip->status);
 		//close the zip
 		$zip->close();
 		//check to make sure the file exists
@@ -112,7 +129,14 @@ function create_zip($files = array(),$destination = '',$localTxtDirectory = '',$
 	}
 	else
 	{
+		write_to_log($localTxtDirectory,"a","Error: no valid files were returned for zipping");
 		return false;
 	}
+}
+
+function write_to_log($localTxtDirectory = '', $openMode = '', $logEntry = '') {
+	$myfile = fopen($localTxtDirectory . 'export.log', $openMode) or die("Unable to open file!");
+	fwrite($myfile, $logEntry."\r\n");
+	fclose($myfile);
 }
 ?>

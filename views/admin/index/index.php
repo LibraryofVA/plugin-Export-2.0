@@ -52,7 +52,7 @@ foreach (loop('items') as $item) :
 				//remove Transclusion expansion time report
 				$transcriptionText = preg_replace("/<!--.*?-->/ms", "", $transcriptionText);
 				//convert transcription text from UTF-8 to windows-1252 which worked better in PDF files created
-				$transcriptionText = iconv('UTF-8', 'windows-1252', $transcriptionText);
+				$transcriptionText = iconv('UTF-8', 'windows-1252//TRANSLIT', utf8_encode($transcriptionText));
 
 				//replace coded single quotes found in the Title with a single quote
 				$transcriptionTitle = preg_replace("/&#039;/", "'", metadata($item, array('Dublin Core', 'Title')));

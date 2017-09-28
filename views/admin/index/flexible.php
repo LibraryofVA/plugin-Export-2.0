@@ -11,7 +11,7 @@ foreach (glob($pdfDirectory . "*.txt") as $file) {
 	unlink($file); // unlink deletes a file
 }
 
-//include FPDF 
+//include FPDF
 require_once(dirname(getcwd()) . "/plugins/Export/fpdf.php");
 
 //get collection from query string
@@ -76,7 +76,7 @@ foreach (loop('items') as $item) :
 				//remove Transclusion expansion time report
 				$transcriptionText = preg_replace("/<!--.*?-->/ms", "", $transcriptionText);
 				//convert transcription text from UTF-8 to windows-1252 which worked better in PDF files created
-				$transcriptionText = iconv('UTF-8', 'windows-1252', $transcriptionText);
+				$transcriptionText = iconv('UTF-8', 'windows-1252//TRANSLIT', utf8_encode($transcriptionText));
 
 				//replace coded single quotes found in the Title with a single quote
 				$transcriptionTitle = preg_replace("/&#039;/", "'", metadata($item, array('Dublin Core', 'Title')));
@@ -87,10 +87,10 @@ foreach (loop('items') as $item) :
 				$arrayOfFiles[] = array('id' => metadata($file, 'id'), 'of' => $jpgFileName, 'title' => $transcriptionTitle, 'date' => metadata($item, array('Dublin Core', 'Date')), 'trans' => $transcriptionText);
 			endif;
 		endforeach;
-		
+
 		//sort the array of files
 		$arr2 = array_msort($arrayOfFiles, array('of'=>SORT_ASC));
-		
+
 
 		if ($format == "PDF") {
 			//build pdf page for each file
@@ -120,7 +120,7 @@ foreach (loop('items') as $item) :
 		//clear arrays
 		$arr2 = array();
 		$arrayOfFiles = array();
-		
+
 		//add the file name to an array used later to zip the files
 		$arrayOfCreatedFiles[] = $fileName;
 	endif;
@@ -129,10 +129,10 @@ endforeach;
 $result = create_zip($arrayOfCreatedFiles,$pdfDirectory . "collection.zip",$pdfDirectory);
 
 if($result) {
-	header("Content-type: application/zip"); 
-	header("Content-Disposition: attachment; filename=collection.zip"); 
-    header("Pragma: no-cache"); 
-    header("Expires: 0"); 
+	header("Content-type: application/zip");
+	header("Content-Disposition: attachment; filename=collection.zip");
+    header("Pragma: no-cache");
+    header("Expires: 0");
     readfile($pdfDirectory . "collection.zip");
 }
 

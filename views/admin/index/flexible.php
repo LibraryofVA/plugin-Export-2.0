@@ -2,6 +2,9 @@
 //PDF directory location, this directory needs to be owned by your httpd service account
 $pdfDirectory = dirname(getcwd()) . "/plugins/Export/PDF/";
 
+//Create log file
+write_to_log($pdfDirectory,"w",date("Y-m-d h:i:sa")."\r\n");
+
 // Loop over all of the .pdf files in the PDF folder
 foreach (glob($pdfDirectory . "*.pdf") as $file) {
 	unlink($file); // unlink deletes a file
@@ -46,6 +49,7 @@ $collection_items = get_records('Item',
 
 set_loop_records('items', $collection_items);
 foreach (loop('items') as $item) :
+	write_to_log($pdfDirectory,"a",metadata($item, array('Dublin Core', 'Title')));
 	set_current_record('item', $item);
 	if (metadata($item, 'has files')):
 		$pdf = new FPDF();
@@ -64,6 +68,9 @@ foreach (loop('items') as $item) :
 					//set txt name
 					$fileName = substr($jpgFileName, 0, -$charCount) . "_transcription.txt";
 				}
+	
+				//logging individual txt file names
+				write_to_log($pdfDirectory,"a","\t".$fileName);
 
 				//clean <p>, </p>, <pre>, </pre>, and <br /> out of the transcription text
 				$transcriptionText = preg_replace("/<[\/]*p>/", "", metadata($file, array('Scripto', 'Transcription')));
@@ -126,6 +133,9 @@ foreach (loop('items') as $item) :
 	endif;
 endforeach;
 
+//logging
+write_to_log($pdfDirectory,"a","End of file creation reached");
+
 $result = create_zip($arrayOfCreatedFiles,$pdfDirectory . "collection.zip",$pdfDirectory);
 
 if($result) {
@@ -152,6 +162,7 @@ function create_zip($files = array(),$destination = '',$localPdfDirectory = '',$
 			}
 		}
 	}
+	write_to_log($localPdfDirectory,"a",count($valid_files) . " valid/exisiting files to zip.");
 	//if we have good files...
 	if(count($valid_files)) {
 		//create the archive
@@ -197,5 +208,11 @@ function array_msort($array, $cols) {
         }
     }
     return $ret;
+}
+
+function write_to_log($localPdfDirectory = '', $openMode = '', $logEntry = '') {
+	$myfile = fopen($localPdfDirectory . 'export.log', $openMode) or die("Unable to open file!");
+	fwrite($myfile, $logEntry."\r\n");
+	fclose($myfile);
 }
 ?>

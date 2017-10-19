@@ -105,7 +105,7 @@ foreach (loop('items') as $item) :
 				$pdf->AddPage();
 				$pdf->SetFont('Times','',12);
 				$pdf->Cell(40,15,$pdf->Image(dirname(getcwd()) . '/plugins/Export/logo.png', 10, 10, 35),0,0);
-				$pdf->Cell(0,5,$row['title'],0,1);
+				$pdf->MultiCell(0,5,$row['title']);
 				$pdf->SetX(50); //indent the next cell
 				$pdf->Cell(0,5,$row['date'],0,1);
 				$pdf->SetX(50); //indent the next cell

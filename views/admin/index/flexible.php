@@ -115,13 +115,13 @@ foreach (loop('items') as $item) :
 			}
 			$content = $pdf->Output($pdfDirectory . $fileName,'F');
 		} else {
+			$myfile = fopen($pdfDirectory . $fileName, "a") or die("Unable to open file!");
+			fwrite($myfile, $transcriptionTitle."\r\n".$fileName."\r\n");
 			foreach ($arr2 as $key => $row) {
-				$myfile = fopen($pdfDirectory . $fileName, "a") or die("Unable to open file!");
-				fwrite($myfile, $row['title']."\r\n");
 				fwrite($myfile, $row['date']."\r\n");
-				fwrite($myfile, $row['trans']);
-				fclose($myfile);
+				fwrite($myfile, $row['trans']."\r\n\r\n");
 			}
+			fclose($myfile);
 		}
 
 		//clear arrays
